@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        div[contenteditable="true"] {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        .custom-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .custom-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase Integration Example</h1>
+    <div contenteditable="true" id="editableContent">
+        Đây là nội dung có thể chỉnh sửa. Sửa nội dung này để kiểm tra.
+    </div>
+    <button onclick="saveData();" class="custom-button">Lưu Dữ Liệu</button>
+    <button onclick="loadData();" class="custom-button">Tải Dữ Liệu</button>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script>
+        // Cấu hình Supabase
+        const SUPABASE_URL = "https://your-project.supabase.co"; // Thay bằng URL của Supabase
+        const SUPABASE_ANON_KEY = "your-anon-key"; // Thay bằng API Key của Supabase
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Hàm lưu dữ liệu vào Supabase
+        async function saveData() {
+            const content = document.getElementById("editableContent").innerHTML;
+            const { data, error } = await supabase
+                .from('app_data') // Tên bảng trong Supabase
+                .insert([{ content: content }]);
+            if (error) {
+                console.error("Lỗi khi lưu dữ liệu:", error);
+                alert("Lỗi khi lưu dữ liệu.");
+            } else {
+                alert("Dữ liệu đã được lưu thành công!");
+            }
+        }
+
+        // Hàm tải dữ liệu từ Supabase
+        async function loadData() {
+            const { data, error } = await supabase
+                .from('app_data') // Tên bảng trong Supabase
+                .select('*')
+                .order('created_at', { ascending: false }); // Lấy dữ liệu mới nhất
+            if (error) {
+                console.error("Lỗi khi tải dữ liệu:", error);
+                alert("Lỗi khi tải dữ liệu.");
+            } else if (data.length > 0) {
+                document.getElementById("editableContent").innerHTML = data[0].content;
+                alert("Dữ liệu đã được tải thành công!");
+            } else {
+                alert("Không có dữ liệu để hiển thị.");
+            }
+        }
+    </script>
+</body>
+</html>
